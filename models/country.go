@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/astaxie/beego/orm"
 )
 
@@ -68,4 +70,34 @@ func GetCountryByID(id int64) (Country, bool) {
 		return c, false
 	}
 	return c, true
+}
+
+// AddCountry ...
+func AddCountry(country *Country) int64 {
+	o := orm.NewOrm()
+	_, err := o.Insert(country)
+	if err != nil {
+		return 0
+	}
+	return country.ID
+}
+
+// UpdateCountry ...
+func UpdateCountry(cid int64, co *Country) (num int64, err error) {
+	o := orm.NewOrm()
+	country := &Country{ID: cid}
+	country.LocalName = co.LocalName
+	country.EnglishName = co.EnglishName
+	country.PrefixPhone = co.PrefixPhone
+	country.Short2 = co.Short2
+	country.Short3 = co.Short3
+
+	n, err := o.Update(country)
+	if err != nil {
+		return 0, err
+	}
+	if n == 0 {
+		return n, errors.New("Update fail")
+	}
+	return n, nil
 }

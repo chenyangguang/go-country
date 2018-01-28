@@ -1,5 +1,6 @@
 .idea
 .tags
+swagger/*
 tags
 main
 go-country
