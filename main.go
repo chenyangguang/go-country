@@ -18,6 +18,10 @@ func init() {
 	}
 
 	orm.Debug = true
+	err := orm.RunSyncdb("default", false, true) // autocreate table
+	if err != nil {
+		beego.Error(err)
+	}
 }
 
 func main() {

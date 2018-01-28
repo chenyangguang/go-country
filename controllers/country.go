@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/astaxie/beego"
+	"github.com/chenyangguang/go-country/models"
 )
 
 // CountryController operation about country
@@ -10,21 +13,35 @@ type CountryController struct {
 }
 
 // Post creat a country
-func (o *CountryController) Post() {
-	o.ServeJSON()
+func (c *CountryController) Post() {
+	c.ServeJSON()
 }
 
 // Get test
-func (o *CountryController) Get() {
-	o.ServeJSON()
+func (c *CountryController) Get() {
+	id := c.Ctx.Input.Param(":id")
+	intID, _ := strconv.ParseInt(id, 10, 64)
+	s, err := models.GetCountryByID(intID)
+	if !err {
+		c.Data["json"] = "Not found"
+	} else {
+		c.Data["json"] = s
+	}
+	c.ServeJSON()
 }
 
 // GetAll countries
-func (o *CountryController) GetAll() {
-	o.ServeJSON()
+func (c *CountryController) GetAll() {
+	cs := models.GetAllCountries()
+	if cs == nil {
+		c.Data["json"] = "Not found."
+	} else {
+		c.Data["json"] = cs
+	}
+	c.ServeJSON()
 }
 
 // Delete a country
-func (o *CountryController) Delete() {
-	o.ServeJSON()
+func (c *CountryController) Delete() {
+	c.ServeJSON()
 }

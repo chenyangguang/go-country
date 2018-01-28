@@ -1,37 +1,71 @@
 package models
 
 import (
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 )
 
 // Countries msg
 var (
-	Countries map[string]*Country
+	Countries map[int]*Country
 )
 
 // Country  model
 type Country struct {
-	ID          int    `json:"id" orm:"column(id)"`
+	ID          int64  `json:"id" orm:"pk;column(id)"`
 	Short2      string `json:"short2" orm:"column(short2);size(2)"`
 	Short3      string `json:"short3" orm:"column(short3);size(3)"`
 	LocalName   string `json:"local_name" orm:"column(local_name);size(255)"`
 	EnglishName string `json:"english_name" orm:"column(english_name);size(100)"`
-	PrefixPhone int    `json:"prefix_phone" orm:"column(prefix_phone)"`
+	PrefixPhone int64  `json:"prefix_phone" orm:"column(prefix_phone)"`
+}
+
+// TableName setting
+func (c *Country) TableName() string {
+	return "country"
+}
+
+// TableEngine ...
+func (c *Country) TableEngine() string {
+	return "INNODB"
+}
+
+// TableIndex setting
+func (c *Country) TableIndex() [][]string {
+	return [][]string{
+		[]string{"LocalName", "EnglishName"},
+	}
+}
+
+// TableUnique setting
+func (c *Country) TableUnique() [][]string {
+	return [][]string{
+		[]string{"Short2", "Short3", "LocalName", "EnglishName", "PrefixPhone"},
+	}
 }
 
 func init() {
 	orm.RegisterModel(new(Country))
 }
 
-// addOne Country
-func addOne() {
+// GetAllCountries get all the countries info.
+func GetAllCountries() []*Country {
 	o := orm.NewOrm()
-	country := Country{Short2: "CNH", Short3: "CNH", LocalName: "中国", EnglishName: "China", PrefixPhone: 86}
-	id, err := o.Insert(&country)
+	var countries []*Country
+	q := o.QueryTable("country")
+	_, err := q.All(&countries)
 	if err != nil {
-		beego.Error(err)
+		return nil
 	}
+	return countries
+}
 
-	beego.Error(id)
+// GetCountryByID ...
+func GetCountryByID(id int64) (Country, bool) {
+	c := Country{ID: id}
+	o := orm.NewOrm()
+	err := o.Read(&c)
+	if err != nil {
+		return c, false
+	}
+	return c, true
 }
